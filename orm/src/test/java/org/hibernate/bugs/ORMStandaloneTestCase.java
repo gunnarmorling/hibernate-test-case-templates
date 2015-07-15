@@ -1,5 +1,6 @@
 package org.hibernate.bugs;
 
+import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 import org.hibernate.cfg.Configuration;
@@ -22,7 +23,7 @@ public class ORMStandaloneTestCase {
 		cfg = new Configuration();
 
 		// Add your entities here.
-		// cfg.addAnnotatedClass(Foo.class);
+		 cfg.addAnnotatedClass( StoryGame.class);
 
 		// Add in any settings that are specific to your test.  See resources/hibernate.properties for the defaults.
 		cfg.setProperty("hibernate.show_sql", "true");
@@ -32,12 +33,18 @@ public class ORMStandaloneTestCase {
 		StandardServiceRegistryBuilder srb = new StandardServiceRegistryBuilder();
 		ServiceRegistry sr = srb.build();
 		sf = cfg.buildSessionFactory(sr);
+
 	}
 
 	// Add your tests, using standard JUnit.
 
 	@Test
 	public void hhh123Test() throws Exception {
+		Session session = sf.openSession();
+		session.beginTransaction();
+		session.getTransaction().commit();
 
+		session.close();
+		sf.close();
 	}
 }
