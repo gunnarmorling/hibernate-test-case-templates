@@ -1,14 +1,18 @@
 package org.hibernate.bugs;
 
+import static org.junit.Assert.assertEquals;
+
+import java.util.List;
+
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
 import org.hibernate.boot.Metadata;
 import org.hibernate.boot.MetadataSources;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
+import org.hibernate.transform.DistinctRootEntityResultTransformer;
 import org.junit.Before;
 import org.junit.Test;
-
 /**
  * This template demonstrates how to develop a standalone test case for Hibernate ORM.  Although this is perfectly
  * acceptable as a reproducer, usage of ORMUnitTestCase is preferred!
@@ -54,6 +58,20 @@ public class ORMStandaloneTestCase {
 		vm1.getConfigurations().add( config2 );
 
 		session.persist( vm1 );
+
+		transaction.commit();
+		session.clear();
+
+		transaction = session.beginTransaction();
+
+		@SuppressWarnings("unchecked")
+		List<VirtualMachine> list = session.createQuery(
+				"FROM VirtualMachine vm LEFT JOIN FETCH vm.configurations c LEFT JOIN FETCH c.properties WHERE vm.id = :id" )
+			.setParameter( "id", vm1.getId() )
+			.setResultTransformer( DistinctRootEntityResultTransformer.INSTANCE )
+			.list();
+
+		assertEquals( 1, list.size() );
 
 		transaction.commit();
 		session.close();
