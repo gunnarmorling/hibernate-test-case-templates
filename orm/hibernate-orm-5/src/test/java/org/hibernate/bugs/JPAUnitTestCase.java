@@ -1,5 +1,7 @@
 package org.hibernate.bugs;
 
+import static org.junit.Assert.assertEquals;
+
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
@@ -31,7 +33,22 @@ public class JPAUnitTestCase {
 	public void hhh123Test() throws Exception {
 		EntityManager entityManager = entityManagerFactory.createEntityManager();
 		entityManager.getTransaction().begin();
-		// Do stuff...
+
+		Customer customer = new Customer();
+		customer.id = 1L;
+		customer.name = "Bob";
+		entityManager.persist( customer );
+
+		entityManager.getTransaction().commit();
+		entityManager.close();
+
+		entityManager = entityManagerFactory.createEntityManager();
+		entityManager.getTransaction().begin();
+
+		customer = entityManager.find( Customer.class, 1L );
+		assertEquals( 1L, customer.id );
+		assertEquals( "Bob", customer.name );
+
 		entityManager.getTransaction().commit();
 		entityManager.close();
 	}
